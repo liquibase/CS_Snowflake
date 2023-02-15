@@ -16,4 +16,12 @@
            <column name="test_column" type="varchar"/>
     </createTable>
     </changeSet>
+<changeSet id="3" author="Liquibase">
+    <createTable tableName="amy_test_table3">
+           <column name="test_id" type="int">
+                 <constraints primaryKey="true"/>
+           </column>
+           <column name="test_column" type="varchar"/>
+    </createTable>
+    </changeSet>
 </databaseChangeLog>
