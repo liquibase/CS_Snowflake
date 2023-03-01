@@ -6,6 +6,6 @@ create table sizes (
 	name varchar (255), 
 	contains_tracking_id boolean default True, 
 	date_first_entered date default null 
-);
---DATA_RETENTION_TIME_IN_DAYS=2;
+)
+DATA_RETENTION_TIME_IN_DAYS=2;
 --rollback DROP TABLE sizes
