@@ -21,7 +21,7 @@ stages:
 
   # Copy Checks from Centralized Repo to current project
     - type: shell 
-      command: xcopy /s/e/y rules\mongodb\QualityChecks\liquibase.checks-settings.conf .
+      command: xcopy /s/e/y rules\snowflake\QualityChecks\liquibase.checks-settings.conf .
       cmdArgs: {}
 
   # Run Checks on Repo Changelog
