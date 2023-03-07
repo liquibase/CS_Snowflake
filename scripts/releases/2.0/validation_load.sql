@@ -1,0 +1,12 @@
+--liquibase formatted sql
+
+--changeset AmySmith:orders_table labels:JIRA-5234
+CREATE OR REPLACE TABLE ORDERS (
+    ORDER_ID VARCHAR(30),
+    AMOUNT VARCHAR(30),
+    PROFIT INT,
+    QUANTITY INT,
+    CATEGORY VARCHAR(30),
+    SUBCATEGORY VARCHAR(30));
+--rollback DROP TABLE ORDERS;
+ 
