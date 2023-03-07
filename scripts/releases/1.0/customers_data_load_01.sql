@@ -9,7 +9,6 @@ CREATE TABLE CUSTOMERS (
   "age" INT,
   "city" VARCHAR)
 DATA_RETENTION_TIME_IN_DAYS=2; 
-;
 --rollback DROP TABLE CUSTOMERS
  
 --changeset AmySmith:customers_table_load labels:JIRA-5222
