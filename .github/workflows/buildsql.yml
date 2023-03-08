@@ -36,7 +36,8 @@ jobs:
       - name: Package (Linux)
         env: 
           LB_FLOW_ENV: "DEV"
-          LB_FLOW_DIR: flows      
+          LB_FLOW_DIR: flows
+          LB_BUILD: ${{ github.run_number }}          
       
         if: runner.os == 'Linux'
         run: |
@@ -50,6 +51,7 @@ jobs:
         env: 
           LB_FLOW_ENV: "DEV"
           LB_FLOW_DIR: flows
+          LB_BUILD: ${{ github.run_number }}
           
         if: runner.os == 'Windows'
         run: |

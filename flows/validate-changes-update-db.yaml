@@ -34,7 +34,7 @@ stages:
     actions:
     - type: liquibase
       command: tag
-      cmdArgs: {tag: "${{ github.run_number }}"}
+      cmdArgs: {tag: "${LB_BUILD}"}
   
   generateUpdateInfo:
     actions:
