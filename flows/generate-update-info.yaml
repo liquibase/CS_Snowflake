@@ -6,13 +6,7 @@
 #   required in development environments
 stages:
 
-  tagAndInspectDatabase:
-  # Tag database current state
-    actions:
-    - type: liquibase
-      command: tag
-      cmdArgs: {tag: "GHA-TAG"}
-
+  inspectDatabase:
   # Run verbose status to capture change history 
     - type: liquibase
       command: status
