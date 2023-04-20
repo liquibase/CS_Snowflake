@@ -251,22 +251,3 @@ rules:
   shortName: ConstraintMustExist
 - !!com.datical.liquibase.ext.checks.config.model.BasicRule {enabled: false, id: !!java.util.UUID 'af508207-cd38-3498-8a56-187ed76caebb',
   severity: INFO}
-- !!com.datical.liquibase.ext.checks.config.model.BasicRule {enabled: true, id: !!java.util.UUID '9197d8c1-86e7-3277-b3d9-677c2f2b4213',
-  severity: INFO}
-- !!com.datical.liquibase.ext.checks.config.model.BasicRule {enabled: true, id: !!java.util.UUID 'b36ff4e4-b647-3bfa-b73f-33c7a588c567',
-  severity: INFO}
-- !!com.datical.liquibase.ext.checks.config.model.DynamicRule
-  description: This check warns a user when a ChangeSet includes a ChangeType listed
-    by the user as forbidden
-  enabled: true
-  id: !!java.util.UUID '467fd8ba-a898-30a7-b265-aa48a023ae21'
-  name: Warn on Use of User Defined ChangeTypes
-  parameters:
-  - {parameter: CHANGE_TYPE_LIST, value: 'dropTable,dropColumn'}
-  parentRuleId: null
-  severity: INFO
-  shortName: DetectChangeType
-- !!com.datical.liquibase.ext.checks.config.model.BasicRule {enabled: true, id: !!java.util.UUID '2b02222f-32cf-3761-add0-9615b821678f',
-  severity: INFO}
-- !!com.datical.liquibase.ext.checks.config.model.BasicRule {enabled: true, id: !!java.util.UUID 'b945447e-9e2a-3422-b40c-543d7505568a',
-  severity: INFO}
