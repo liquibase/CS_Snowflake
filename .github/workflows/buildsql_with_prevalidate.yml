@@ -90,13 +90,9 @@ jobs:
 
     - name: Install SnowSQL
       run: |
-        dnf -y update && dnf -y install \
-        python3 \
-        wget \
-        unzip \
-        gnupg \
-        curl \
-        && dnf clean all
+        yum install -y epel-release && \
+        yum install -y dnf && \
+        yum clean all
 
     - name: Flows
       uses: liquibase-github-actions/flow@v4.32.0
