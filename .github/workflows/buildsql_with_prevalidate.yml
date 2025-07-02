@@ -1,69 +1,85 @@
-# This is a simple build workflow for Liquibase Pro
+####################################################################
+#  GitHub Action for Snowflake with PreValidate and LiquibasePro
+#  Environments: DEV, TEST, PROD
+#####################################################################
+name: 'Liquibase Pro with Snowflake Prevalidate'
+run-name: ${{ inputs.environment}} connect by ${{ github.actor }}
 
-name: buildsql_with_prevalidate
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events
-  push:
-    branches:
-      - 'main'
-      - 'development'
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    # Following are the inputs received via the GitHubActions Run workflow dialog
+    inputs:
+      # The type 'environment' will automatically pull in the environments created in GitHub
+      environment:
+        description: 'Environment to connect'
+        type: environment
+        required: true
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+####################################################################
+#  Set up the environment
+#####################################################################
+env:
+  
+  # AWS Access credentials use by the Liquibase Pro AWS Secrets Extension
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  # Default AWS region
+  AWS_REGION: us-east-1
+
+  # GitHub Environment
+  ENVIRONMENT: ${{ inputs.environment }}
+  
+  LIQUIBASE_LICENSE_KEY: "aws-secrets,asmith_snowflake,license"
+  
+  # JDBC URL of the database per environment
+  # See https://docs.liquibase.com/workflows/liquibase-community/using-jdbc-url-in-liquibase.html
+  LIQUIBASE_COMMAND_URL: "aws-secrets,asmith_snowflake,${{ inputs.environment }}_url"
+
+  # Credentials for the environment's database https://docs.liquibase.com/parameters/command-parameters.html
+  LIQUIBASE_COMMAND_USERNAME: "aws-secrets,asmith_snowflake,${{ inputs.environment }}_username"
+  LIQUIBASE_COMMAND_PASSWORD: "aws-secrets,asmith_snowflake,${{ inputs.environment }}_password"
+  
+  # Liquibase schema: Specified to allow flexibility in storage of Liquibase Change Tracking Tables
+  # See https://docs.liquibase.com/parameters/liquibase-schema-name.html
+  LIQUIBASE_LIQUIBASE_SCHEMA_NAME: ${{ inputs.environment }}2
+  
+  # Default schema: Specify schema for all changes
+  LIQUIBASE_COMMAND_DEFAULT_SCHEMA_NAME: ${{ inputs.environment }}2
+  
+  # Search path (See https://docs.liquibase.com/concepts/changelogs/how-liquibase-finds-files.html)
+  LIQUIBASE_SEARCH_PATH: flows, checks, changelogs
+  
+  # The database changelog. See https://docs.liquibase.com/concepts/changelogs/working-with-changelogs.html
+  LIQUIBASE_COMMAND_CHANGELOG_FILE: snowflake.changelog.yaml
+  
+
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: [ self-hosted, windows ]
-    # runs-on: [ self-hosted, linux ]
+  #########################################################################
+  #  Build
+  #########################################################################
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  build:
+    runs-on: [self-hosted]
+    environment: ${{ inputs.environment }}
+    
+    # Specify the Docker container to use for the job
+    container:
+      image: liquibase/liquibase:latest
+      options: --user root
+      
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v3
       
-      # Prints the contexts
-      - name: Print the github context
-        run:  echo "$GITHUB_CONTEXT"
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-      
-      # Runs the Packager commands for Linux
-      - name: Package (Linux)
-        env: 
-          LB_FLOW_ENV: "DEV"
-          LB_FLOW_DIR: flows
-          LB_BUILD: "${{ github.repository }}-${{ github.run_number }}"          
-      
-        if: runner.os == 'Linux'
-        run: |
-          whoami
-          PATH="$PATH:/opt/Liquibase"
-          echo $PATH
-          liquibase flow --flow-file=flows/validate-changes-update-db.yaml
-          
-      # Runs the Packager commands for Windows
-      - name: Package (Windows)
-        env: 
-          LB_FLOW_ENV: "DEV"
-          LB_FLOW_DIR: flows
-          LB_BUILD: "${{ github.repository }}-${{ github.run_number }}"
-          
-        if: runner.os == 'Windows'
-        run: |
-          whoami
-          $Env:Path += ";C:\apps\Liquibase"
-          echo $Env:Path
-          liquibase flow --flow-file=flows/validate-changes-update-db.yaml
-          
-      - name: Create Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: liquibase-repo
-          path: |
-            project
+    - name: Install Extensions Using LPM
+      run: |
+        lpm update
+        lpm add liquibase-aws-secrets-manager
+
+    - name: Flows
+      uses: liquibase-github-actions/flow@v4.32.0
+      with:
+        flowFile: "liquibase.flowfile-wprevalidate.yaml"
 
