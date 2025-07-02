@@ -71,7 +71,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3        
-      
+
+      - name: Package (Linux)      
         run: |
           liquibase -v
           snowsql -v
