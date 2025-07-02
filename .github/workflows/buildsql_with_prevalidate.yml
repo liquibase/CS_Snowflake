@@ -1,13 +1,14 @@
 # This is a simple build workflow for Liquibase Pro
 
-name: buildsql
+name: buildsql_with_prevalidate
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events
   push:
     branches:
-      - 'off'
+      - 'main'
+      - 'development'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

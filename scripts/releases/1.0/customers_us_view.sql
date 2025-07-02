@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 --changeset AmySmith:customers_us_table labels:JIRA-3945
-CREATE TABLE CUSTOMERS_US (
+CREATE TABLE CUSTOMERS_US if not exists (
    id int,
    first_name string,
   last_name string,

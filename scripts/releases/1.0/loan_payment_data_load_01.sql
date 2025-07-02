@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 --changeset AmySmith:loan_payment_table labels:JIRA-5678
-CREATE TABLE LOAN_PAYMENT (
+CREATE or replace TABLE LOAN_PAYMENT (
   "Loan_ID" STRING,
   "loan_status" STRING,
   "Principal" STRING,

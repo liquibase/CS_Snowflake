@@ -1,7 +1,8 @@
 --liquibase formatted sql
 
 --changeset AmySmith:products_table labels:JIRA-1234
-create table products (
+create table products 
+if not exists (
 	product_id numeric not null,
 	product_name varchar (255), 
 	contains_tracking_id boolean default True, 
@@ -13,7 +14,8 @@ DATA_RETENTION_TIME_IN_DAYS=2;
 
 
 --changeset AmySmith:products2_table labels:JIRA-1234
-create table products2 (
+create table products2
+if not exists (
 	product_id numeric not null,
 	product_name varchar (255), 
 	contains_tracking_id boolean default True, 

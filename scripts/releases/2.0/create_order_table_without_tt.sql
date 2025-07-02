@@ -5,5 +5,6 @@ create or replace table order_table (
     orderkey number(38,0),
     custkey number(38,0)
 )
+data_retention_time_in_days=3
 ;
 --rollback drop table order_table
