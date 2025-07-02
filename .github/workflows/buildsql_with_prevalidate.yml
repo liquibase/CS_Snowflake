@@ -57,13 +57,13 @@ env:
   LB_ENVIRONMENT: ${{ inputs.environment }}
   
   # Prevalidate parameters
-  #ACCT_NAME: 
+  ACCT_NAME: "aws-secrets,asmith_snowflake,acct_name" 
   #CLONED_URL: jdbc url to the cloned database/schema
-  #CLONED_UID: the userid connecting to the cloned database/schema
-  #CLONED_PW: the password for connecting to the cloned database/schema
+  CLONED_UID: "aws-secrets,asmith_snowflake,${{ inputs.environment }}_username"
+  CLONED_PW: "aws-secrets,asmith_snowflake,${{ inputs.environment }}_password"
   #SNOWSQL_PWD: the password for connecting to the original database\schema with clone permissions
-  #CLONED_DB: the name of the database to be cloned
-  #CLONED_SCHEMA: the schema name of the cloned schema   
+  CLONED_DB: "ASDB"
+  CLONED_SCHEMA: ${{ inputs.environment }}2   
   
 jobs:
   build:
