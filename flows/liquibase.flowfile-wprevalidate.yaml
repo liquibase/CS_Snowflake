@@ -36,9 +36,9 @@ stages:
       ##
       #  Create clone
       #
-      #- type: liquibase
-      #  command: flow
-      #  cmdArgs: {flowFile: "clone-setup.yaml"}
+      - type: liquibase
+        command: flow
+        cmdArgs: {flowFile: "clone-setup.yaml"}
       #
       # Review pending changes
       #
@@ -83,6 +83,6 @@ endStage:
   actions:
     - type: liquibase
       command: history
-    - type: liquibase
-      command: flow
-      cmdArgs: { flowFile: "clone-cleanup.yaml"}
+    #- type: liquibase
+    #  command: flow
+    #  cmdArgs: { flowFile: "clone-cleanup.yaml"}

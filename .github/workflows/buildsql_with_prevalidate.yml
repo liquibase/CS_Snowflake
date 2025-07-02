@@ -88,6 +88,16 @@ jobs:
         lpm update
         lpm add liquibase-aws-secrets-manager
 
+    - name: Install SnowSQL
+      run: |
+        dnf -y update && dnf -y install \
+        python3 \
+        wget \
+        unzip \
+        gnupg \
+        curl \
+        && dnf clean all
+
     - name: Flows
       uses: liquibase-github-actions/flow@v4.32.0
       with:
