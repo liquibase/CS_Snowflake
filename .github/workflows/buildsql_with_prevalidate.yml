@@ -66,36 +66,15 @@ env:
   #CLONED_SCHEMA: the schema name of the cloned schema   
   
 jobs:
-  #########################################################################
-  #  Build
-  #########################################################################
-
   build:
-    runs-on: [self-hosted]
-    environment: ${{ inputs.environment }}
-    
-    # Specify the Docker container to use for the job
-    container:
-      image: liquibase/liquibase:latest
-      options: --user root
-      
+    runs-on: [ self-hosted, Linux ]
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v3        
       
-    - name: Install Extensions Using LPM
-      run: |
-        lpm update
-        lpm add liquibase-aws-secrets-manager
-
-    - name: Install SnowSQL
-      run: |
-        yum install -y epel-release && \
-        yum install -y dnf && \
-        yum clean all
-
-    - name: Flows
-      uses: liquibase-github-actions/flow@v4.32.0
-      with:
-        flowFile: "liquibase.flowfile-wprevalidate.yaml"
+        run: |
+          liquibase -v
+          snowsql -v
+          liquibase status
+       
 
