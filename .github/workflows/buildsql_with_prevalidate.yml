@@ -72,10 +72,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3        
 
-      - name: Package (Linux)      
+      - name: Run Liquibase       
         run: |
           liquibase -v
           snowsql -v
-          liquibase status
+          liquibase flow --flow-file=flows/liquibase.flowfile-wprevalidate.yaml
        
 
