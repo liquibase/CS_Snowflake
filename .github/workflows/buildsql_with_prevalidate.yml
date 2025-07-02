@@ -76,6 +76,6 @@ jobs:
         run: |
           liquibase -v
           snowsql -v
-          liquibase flow --flow-file=flows/liquibase.flowfile-wprevalidate.yaml
+          liquibase flow --flow-file=liquibase.flowfile-wprevalidate.yaml
        
 
