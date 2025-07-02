@@ -54,7 +54,17 @@ env:
   # The database changelog. See https://docs.liquibase.com/concepts/changelogs/working-with-changelogs.html
   LIQUIBASE_COMMAND_CHANGELOG_FILE: snowflake.changelog.yaml
   
-
+  LB_ENVIRONMENT: ${{ inputs.environment }}
+  
+  # Prevalidate parameters
+  #ACCT_NAME: 
+  #CLONED_URL: jdbc url to the cloned database/schema
+  #CLONED_UID: the userid connecting to the cloned database/schema
+  #CLONED_PW: the password for connecting to the cloned database/schema
+  #SNOWSQL_PWD: the password for connecting to the original database\schema with clone permissions
+  #CLONED_DB: the name of the database to be cloned
+  #CLONED_SCHEMA: the schema name of the cloned schema   
+  
 jobs:
   #########################################################################
   #  Build

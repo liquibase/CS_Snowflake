@@ -7,68 +7,75 @@ globalVariables:
   BASE_DIR: "./"
   DIFF_FILE: "${BASE_DIR}/Diff_${LB_ENVIRONMENT}.json"
   SNAPSHOT_FILE: "Snapshot_${LB_ENVIRONMENT}.json"
+  ENV: ${LB_ENVIRONMENT}
+
 stages:
 
   ## The first stage of actions
   Default:
     actions:
+    
+      # Show Status
+      #
+      - type: liquibase
+        command: status
       #
       # Policy Checks for changelog
       #
-      - type: liquibase
-        command: checks run
-        cmdArgs: {checks-scope: changelog}
+      #- type: liquibase
+      #  command: checks run
+      #  cmdArgs: {checks-scope: changelog}
       #
       # Run diff
       # Update database type in cmdArgs (e.g., oracle, mssql, etc.)
       #
-      - type: liquibase
-        command: diff
-        globalArgs: { outputfile: "${DIFF_FILE}" , reports-enabled: "true" }
-        cmdArgs: { referenceURL: "offline:snowflake?snapshot=${SNAPSHOT_FILE}", format: json }
+      #- type: liquibase
+      #  command: diff
+      #  globalArgs: { outputfile: "${DIFF_FILE}" , reports-enabled: "true" }
+      #  cmdArgs: { referenceURL: "offline:snowflake?snapshot=${SNAPSHOT_FILE}", format: json }
       ##
       #  Create clone
       #
-      - type: liquibase
-        command: flow
-        cmdArgs: {flowFile: "clone-setup.yaml"}
+      #- type: liquibase
+      #  command: flow
+      #  cmdArgs: {flowFile: "clone-setup.yaml"}
       #
       # Review pending changes
       #
-      - type: liquibase
-        command: updateSQL
-        cmdArgs: { URL: "${CLONED_URL}", USERNAME: "${CLONED_UID}", PASSWORD: "${CLONED_PW}" }
+      #- type: liquibase
+      #  command: updateSQL
+      #  cmdArgs: { URL: "${CLONED_URL}", USERNAME: "${CLONED_UID}", PASSWORD: "${CLONED_PW}" }
       #
       # Update the database
       #
-      - type: liquibase
-        command: update
-        cmdArgs: { URL: "${CLONED_URL}", USERNAME: "${CLONED_UID}", PASSWORD: "${CLONED_PW}" }
+      #- type: liquibase
+      #  command: update
+      #  cmdArgs: { URL: "${CLONED_URL}", USERNAME: "${CLONED_UID}", PASSWORD: "${CLONED_PW}" }
       #
       # Validate rollback
       #
-      - type: liquibase
-        command: rollback-one-update-SQL
-        cmdArgs: { URL: "${CLONED_URL}", USERNAME: "${CLONED_UID}", PASSWORD: "${CLONED_PW}" }
+      #- type: liquibase
+      #  command: rollback-one-update-SQL
+      #  cmdArgs: { URL: "${CLONED_URL}", USERNAME: "${CLONED_UID}", PASSWORD: "${CLONED_PW}" }
       #
       #
       # Execute rollback
       #
-      - type: liquibase
-        command: rollback-one-update
-        cmdArgs: { URL: "${CLONED_URL}", USERNAME: "${CLONED_UID}", PASSWORD: "${CLONED_PW}", force: "true" }
+      #- type: liquibase
+      #  command: rollback-one-update
+      #  cmdArgs: { URL: "${CLONED_URL}", USERNAME: "${CLONED_UID}", PASSWORD: "${CLONED_PW}", force: "true" }
       #
       # Update the database
       #
-      - type: liquibase
-        command: update
+      #- type: liquibase
+      #  command: update
       #
       # Create updated snapshot
       #
-      - type: liquibase
-        command: snapshot
-        globalArgs: { outputfile: "${BASE_DIR}/${SNAPSHOT_FILE}" }
-        cmdArgs: { snapshotFormat: "json" }
+      #- type: liquibase
+      #  command: snapshot
+      #  globalArgs: { outputfile: "${BASE_DIR}/${SNAPSHOT_FILE}" }
+      #  cmdArgs: { snapshotFormat: "json" }
       
 
 ## do these actions after all flow commands, regardless of whether the above commands were successful
