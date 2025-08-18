@@ -65,7 +65,9 @@ env:
   LIQUIBASE_COMMAND_CHANGELOG_FILE: changelog.yaml
   
   ENVIRONMENT: ${{ inputs.environment }}
-  LB_TAG: ${{ github.event.inputs.lb_tag }}
+  ROLLBACK_TYPE: ${{ github.event.inputs.rollback_type }}
+  LB_TAG_OR_LABEL: ${{ github.event.inputs.lb_tag_or_label }}
+  LB_SCHEMAS: "${{ inputs.environment }}"
 
   # LIQUIBASE_REPORT_PATH: s3://${{ secrets.AWS_S3_BUCKET }}/snow_reports
   LIQUIBASE_REPORT_PATH: reports
