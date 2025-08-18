@@ -2,11 +2,10 @@
 #  GitHub Action to perform an environment-targeted rollback of
 #  database changes using Liquibase Pro, Liquibase Pro Flows, and S3.
 #####################################################################
-name: 'Snowflake - Liquibase Pro Rollback'
+name: 'Liquibase Pro Rollback'
 run-name: ${{ inputs.environment}} rollback by ${{ github.actor }}
 
 on:
-
   workflow_dispatch:
     # Following are the inputs received via the GitHubActions Run workflow dialog
     inputs:
@@ -42,31 +41,36 @@ env:
   
   # JDBC URL of the database per environment
   # See https://docs.liquibase.com/workflows/liquibase-community/using-jdbc-url-in-liquibase.html
-  LIQUIBASE_COMMAND_URL: ${{ secrets.SNOW_LIQUIBASE_URL }}
+  LIQUIBASE_COMMAND_URL: ${{ secrets.LIQUIBASE_URL }}
 
   # Credentials for the environment's database https://docs.liquibase.com/parameters/command-parameters.html
-  LIQUIBASE_COMMAND_USERNAME: ${{ secrets.SNOW_LIQUIBASE_USERNAME }}
-  LIQUIBASE_COMMAND_PASSWORD: ${{ secrets.SNOW_LIQUIBASE_PASSWORD }}
+  LIQUIBASE_COMMAND_USERNAME: ${{ secrets.LIQUIBASE_USERNAME }}
+  LIQUIBASE_COMMAND_PASSWORD: ${{ secrets.LIQUIBASE_PASSWORD }}
 
   # Liquibase schema: Specified to allow flexibility in storage of Liquibase Change Tracking Tables
   # See https://docs.liquibase.com/parameters/liquibase-schema-name.html
-  LIQUIBASE_LIQUIBASE_SCHEMA_NAME: SALES_${{ inputs.environment }}
+  # LIQUIBASE_LIQUIBASE_SCHEMA_NAME: SALES_${{ inputs.environment }}
   
   # Default schema: Specify schema for all changes
-  LIQUIBASE_COMMAND_DEFAULT_SCHEMA_NAME: SALES_${{ inputs.environment }}
+  # LIQUIBASE_COMMAND_DEFAULT_SCHEMA_NAME: SALES_${{ inputs.environment }}
   # LIQUIBASE_COMMAND_REFERENCE_DEFAULT_SCHEMA_NAME: Sales
 
   # Search path (See https://docs.liquibase.com/concepts/changelogs/how-liquibase-finds-files.html)
   LIQUIBASE_SEARCH_PATH: flows, checks, changelogs
   
   # The database changelog. See https://docs.liquibase.com/concepts/changelogs/working-with-changelogs.html
-  LIQUIBASE_COMMAND_CHANGELOG_FILE: changelog.xml
+  LIQUIBASE_COMMAND_CHANGELOG_FILE: changelog.yaml
   
   ENVIRONMENT: ${{ inputs.environment }}
   LB_TAG: ${{ github.event.inputs.lb_tag }}
-  LIQUIBASE_REPORT_PATH: s3://${{ secrets.AWS_S3_BUCKET }}/snow_reports
+
+  # LIQUIBASE_REPORT_PATH: s3://${{ secrets.AWS_S3_BUCKET }}/snow_reports
+  LIQUIBASE_REPORT_PATH: reports
+  
   # Values: OFF, SEVERE, WARNING, INFO, FINE
   LIQUIBASE_LOG_LEVEL: INFO
+  LIQUIBASE_LOG_FORMAT: JSON_PRETTY
+  LIQUIBASE_LOG_FILE: logs/log.json
 
 jobs:
   #########################################################################
@@ -76,22 +80,27 @@ jobs:
   database-rollback:
     runs-on: [self-hosted]
     environment: ${{ inputs.environment }}
-    
-    # Specify the Docker container to use for the job
-    container:
-      image: liquibase/liquibase:latest
-      options: --user root
-      
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      
-    - name: Install Extensions Using LPM
-      run: |
-        lpm update
-        lpm add liquibase-s3-extension
-      
-    - name: Flows
-      uses: liquibase-github-actions/flow@v4.32.0
+    - uses: actions/checkout@v4
+    
+    - name: Setup Liquibase Environment
+      uses: ./.github/workflows/setup-liquibase
+
+    - name: Setup Snowflake Credentials
+      uses: ./.github/workflows/setup-snowflake-creds
       with:
-          flowFile: "liquibase-rollback.flowfile.yaml"
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          snowflake-secret-id: ${{ env.SNOWFLAKE_SECRET_ID }}
+          key-file-name: ${{ env.LIQUIBASE_SNOWFLAKE_AUTH_PRIVATE_KEY_PATH }} 
+ 
+    - name: Liquibase Rollback Flow
+      run: liquibase flow --classpath=liquibase-aws-extension.jar --flow-file=liquibase-rollback.flowfile.yaml
+      
+    - name: Upload Reports Artifact
+      if: always()
+      uses: ./.github/workflows/upload-reports
+      with:
+        job-type: deploy
+        upload-s3: true
