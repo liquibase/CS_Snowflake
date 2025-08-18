@@ -46,6 +46,9 @@ env:
   # Credentials for the environment's database https://docs.liquibase.com/parameters/command-parameters.html
   LIQUIBASE_COMMAND_USERNAME: ${{ secrets.LIQUIBASE_USERNAME }}
   LIQUIBASE_COMMAND_PASSWORD: ${{ secrets.LIQUIBASE_PASSWORD }}
+  LIQUIBASE_SNOWFLAKE_AUTH_TYPE: PKI  
+  LIQUIBASE_SNOWFLAKE_AUTH_PRIVATE_KEY_PATH: snowflake_key.pem
+  SNOWFLAKE_SECRET_ID: asmith_snowflake_pem
 
   # Liquibase schema: Specified to allow flexibility in storage of Liquibase Change Tracking Tables
   # See https://docs.liquibase.com/parameters/liquibase-schema-name.html
