@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset AmySmith:customers_table
+--changeset AmySmith:customers_table labels:jira-1234
 CREATE OR REPLACE TABLE CUSTOMERS (
   "ID" INT,
   "first_name" VARCHAR,
