@@ -5,8 +5,6 @@ globalVariables:
   ### Use absolute paths when using Liquibase's Docker container
   ###
   BASE_DIR: "./"
-  DIFF_FILE: "${BASE_DIR}/Diff_${LB_ENVIRONMENT}.json"
-  SNAPSHOT_FILE: "Snapshot_${LB_ENVIRONMENT}.json"
   ENV: ${LB_ENVIRONMENT}
 
 stages:
@@ -19,24 +17,11 @@ stages:
       #
       - type: liquibase
         command: status
-      #
-      # Policy Checks for changelog
-      #
-      #- type: liquibase
-      #  command: checks run
-      #  cmdArgs: {checks-scope: changelog}
-      #
-      # Run diff
-      # Update database type in cmdArgs (e.g., oracle, mssql, etc.)
-      #
-      #- type: liquibase
-      #  command: diff
-      #  globalArgs: { outputfile: "${DIFF_FILE}" , reports-enabled: "true" }
-      #  cmdArgs: { referenceURL: "offline:snowflake?snapshot=${SNAPSHOT_FILE}", format: json }
+
       ##
       #  Create clone
       #
-      #- type: liquibase
+      # - type: liquibase
       #  command: flow
       #  cmdArgs: {flowFile: "clone-setup.yaml"}
       #
@@ -70,12 +55,6 @@ stages:
       #- type: liquibase
       #  command: update
       #
-      # Create updated snapshot
-      #
-      #- type: liquibase
-      #  command: snapshot
-      #  globalArgs: { outputfile: "${BASE_DIR}/${SNAPSHOT_FILE}" }
-      #  cmdArgs: { snapshotFormat: "json" }
       
 
 ## do these actions after all flow commands, regardless of whether the above commands were successful
@@ -83,6 +62,6 @@ endStage:
   actions:
     - type: liquibase
       command: history
-    - type: liquibase
-      command: flow
-      cmdArgs: { flowFile: "clone-cleanup.yaml"}
+    #- type: liquibase
+    #  command: flow
+    #  cmdArgs: { flowFile: "clone-cleanup.yaml"}
