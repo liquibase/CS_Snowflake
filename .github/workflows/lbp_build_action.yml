@@ -48,6 +48,9 @@ env:
   # Credentials for the environment's database https://docs.liquibase.com/parameters/command-parameters.html
   LIQUIBASE_COMMAND_USERNAME: ${{ secrets.LIQUIBASE_USERNAME }}
   LIQUIBASE_COMMAND_PASSWORD: ${{ secrets.LIQUIBASE_PASSWORD }}
+  LIQUIBASE_SNOWFLAKE_AUTH_TYPE: PKI  
+  LIQUIBASE_SNOWFLAKE_AUTH_PRIVATE_KEY_PATH: snowflake_key.pem
+  SNOWFLAKE_SECRET_ID: asmith_snowflake_pem  
 
   # Liquibase schema: Specified to allow flexibility in storage of Liquibase Change Tracking Tables
   # See https://docs.liquibase.com/parameters/liquibase-schema-name.html
@@ -83,22 +86,43 @@ jobs:
   database-build:
     runs-on: [self-hosted]
     environment: ${{ inputs.environment }}
-    
-    # Specify the Docker container to use for the job
-    container:
-      image: liquibase/liquibase:latest
-      options: --user root
-      
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      
-    - name: Install Extensions Using LPM
-      run: |
-        lpm update
-        lpm add liquibase-s3-extension
-      
-    - name: Flows
-      uses: liquibase-github-actions/flow@v4.32.0
+    - uses: actions/checkout@v4
+    
+    - name: Setup Liquibase Environment
+      uses: ./.github/workflows/setup-liquibase
+
+    - name: Setup Snowflake Credentials
+      uses: ./.github/workflows/setup-snowflake-creds
       with:
-          flowFile: "liquibase-build.flowfile.yaml"
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          snowflake-secret-id: ${{ env.SNOWFLAKE_SECRET_ID }}
+          key-file-name: ${{ env.LIQUIBASE_SNOWFLAKE_AUTH_PRIVATE_KEY_PATH }}   
+
+    - name: Liquibase Checks Flow
+      id: lbp-policy-checks
+      continue-on-error: true
+      run: | 
+        set +e
+        CHECKS_STATUS=$(liquibase flow --classpath=liquibase-aws-extension.jar --flow-file=liquibase-checks.flowfile.yaml 2>&1)
+        EXIT_CODE=$?
+        set -e
+        if [ $EXIT_CODE -eq 1 ]; then
+          echo "::error::Policy checks did not pass, but allowing build to complete."
+          echo "::error::In non-build environments, this deployment will require Manual Approval."
+          exit $EXIT_CODE
+        fi  
+
+    - name: Liquibase Build Flow
+      run: liquibase flow --classpath=liquibase-aws-extension.jar --flow-file=liquibase-build.flowfile.yaml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Auto-generated
+
+    - name: Upload Reports Artifact
+      if: always()
+      uses: ./.github/workflows/upload-reports
+      with:
+        job-type: deploy
+        upload-s3: true
