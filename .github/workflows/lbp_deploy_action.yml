@@ -3,11 +3,10 @@
 #  database changes using Liquibase Pro, Liquibase Pro Flows,
 #  Custom Quality checks and S3.
 #####################################################################
-name: 'Snowflake - Liquibase Pro Deployment Job'
+name: 'Liquibase Pro Deployment Job'
 run-name: ${{ inputs.environment}} deployment of current repo by ${{ github.actor }}
 
 on:
-
   workflow_dispatch:
     # Following are the inputs received via the GitHubActions Run workflow dialog
     inputs:
@@ -49,59 +48,125 @@ env:
   
   # JDBC URL of the database per environment
   # See https://docs.liquibase.com/workflows/liquibase-community/using-jdbc-url-in-liquibase.html
-  LIQUIBASE_COMMAND_URL: ${{ secrets.SNOW_LIQUIBASE_URL }}
+  LIQUIBASE_COMMAND_URL: ${{ secrets.LIQUIBASE_URL }}
 
   # Credentials for the environment's database https://docs.liquibase.com/parameters/command-parameters.html
-  LIQUIBASE_COMMAND_USERNAME: ${{ secrets.SNOW_LIQUIBASE_USERNAME }}
-  LIQUIBASE_COMMAND_PASSWORD: ${{ secrets.SNOW_LIQUIBASE_PASSWORD }}
+  LIQUIBASE_COMMAND_USERNAME: ${{ secrets.LIQUIBASE_USERNAME }}
+  LIQUIBASE_COMMAND_PASSWORD: ${{ secrets.LIQUIBASE_PASSWORD }}
+  LIQUIBASE_SNOWFLAKE_AUTH_TYPE: PKI  
+  LIQUIBASE_SNOWFLAKE_AUTH_PRIVATE_KEY_PATH: snowflake_key.pem
+  SNOWFLAKE_SECRET_ID: asmith_snowflake_pem  
 
   # Liquibase schema: Specified to allow flexibility in storage of Liquibase Change Tracking Tables
   # See https://docs.liquibase.com/parameters/liquibase-schema-name.html
-  LIQUIBASE_LIQUIBASE_SCHEMA_NAME: SALES_${{ inputs.environment }}
+  # LIQUIBASE_LIQUIBASE_SCHEMA_NAME: SALES_${{ inputs.environment }}
   
   # Default schema: Specify schema for all changes
-  LIQUIBASE_COMMAND_DEFAULT_SCHEMA_NAME: SALES_${{ inputs.environment }}
+  # LIQUIBASE_COMMAND_DEFAULT_SCHEMA_NAME: SALES_${{ inputs.environment }}
   # LIQUIBASE_COMMAND_REFERENCE_DEFAULT_SCHEMA_NAME: Sales
 
   # Search path (See https://docs.liquibase.com/concepts/changelogs/how-liquibase-finds-files.html)
-  LIQUIBASE_SEARCH_PATH: flows, checks, changelogs, s3://${{ secrets.AWS_S3_BUCKET }}/snowflake_snapshots/
+  LIQUIBASE_SEARCH_PATH: flows, checks, changelogs
   
   # The database changelog. See https://docs.liquibase.com/concepts/changelogs/working-with-changelogs.html
-  LIQUIBASE_COMMAND_CHANGELOG_FILE: changelog.xml
+  LIQUIBASE_COMMAND_CHANGELOG_FILE: changelog.yaml
   
   ENVIRONMENT: ${{ inputs.environment }}
   LB_TAG: ${{ github.event.inputs.lb_tag || github.run_number }}
-  LIQUIBASE_REPORT_PATH: s3://${{ secrets.AWS_S3_BUCKET }}/snow_reports
+  
+  # LIQUIBASE_REPORT_PATH: s3://${{ secrets.AWS_S3_BUCKET }}/snow_reports
+  LIQUIBASE_REPORT_PATH: reports
+  
   # Values: OFF, SEVERE, WARNING, INFO, FINE
   LIQUIBASE_LOG_LEVEL: INFO
+  LIQUIBASE_LOG_FORMAT: JSON_PRETTY
+  LIQUIBASE_LOG_FILE: logs/log.json
+  
   LB_CHECK_DRIFT: ${{ github.event.inputs.check_drift }}
-  LB_SCHEMAS: "SALES_${{ inputs.environment }}"
-  LIQUIBASE_COMMAND_CHECKS_RUN_CHECKS_SETTINGS_FILE: snowflake.checks-settings.conf
+  LB_SCHEMAS: "${{ inputs.environment }}"
 
 jobs:
   #########################################################################
   #  Deploy
   #########################################################################
 
-  database-deploy:
+  run-policy-checks:
     runs-on: [self-hosted]
     environment: ${{ inputs.environment }}
-    
-    # Specify the Docker container to use for the job
-    container:
-      image: liquibase/liquibase:latest
-      options: --user root
-      
+    outputs:
+      needs_approval: ${{ steps.lbp-policy-checks.outputs.needs_approval }}
+      exit_message: ${{ steps.lbp-policy-checks.outputs.exit_message }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      
-    - name: Install Extensions Using LPM
-      run: |
-        lpm update
-        lpm add liquibase-s3-extension
-      
-    - name: Flows
-      uses: liquibase-github-actions/flow@v4.32.0
+    - uses: actions/checkout@v4
+   
+    - name: Setup Liquibase Environment
+      uses: ./.github/workflows/setup-liquibase
+
+    - name: Liquibase Checks Flow
+      id: lbp-policy-checks
+      run: |       
+        set +e
+        CHECKS_STATUS=$(liquibase flow --classpath=liquibase-aws-extension.jar --flow-file=liquibase-checks.flowfile.yaml 2>&1)
+        EXIT_CODE=$?
+        set -e
+        
+        if [ $EXIT_CODE -eq 1 ]; then          
+          echo "needs_approval=true" >> $GITHUB_OUTPUT
+          echo "exit_message=❌ Liquibase checks failed - manual review required" >> $GITHUB_OUTPUT
+          echo "✋ Manual approval will be required"
+        else
+          echo "needs_approval=false" >> $GITHUB_OUTPUT
+          echo "exit_message=✅ Liquibase checks passed" >> $GITHUB_OUTPUT
+          echo "✅ Proceeding automatically"
+        fi
+
+    - name: Upload Reports Artifact
+      if: always()
+      uses: ./.github/workflows/upload-reports
       with:
-          flowFile: "liquibase-deploy.flowfile.yaml"
+        job-type: checks
+      
+  manual-approval:
+    runs-on: [self-hosted]
+    needs: run-policy-checks
+    environment: manual-approval
+    if: needs.run-policy-checks.outputs.needs_approval == 'true'
+    steps:
+    - name: Request manual approval
+      run: |
+        echo "🚨 Manual approval required!"
+        echo "Exit message: ${{ needs.run-policy-checks.outputs.exit_message }}"
+        echo "Click 'Review deployments' to approve or reject this deployment."
+        echo ""
+        echo "To approve: Click 'Review deployments' button above"
+        echo "Environment: ${{ inputs.environment }}"
+      
+  deploy:
+    runs-on: [self-hosted]
+    needs: [run-policy-checks, manual-approval]
+    environment: ${{ inputs.environment }}
+    if: always() && (needs.run-policy-checks.outputs.needs_approval == 'false' || needs.manual-approval.result == 'success')
+    steps:
+    - uses: actions/checkout@v4    
+
+    - name: Setup Liquibase Environment
+      uses: ./.github/workflows/setup-liquibase
+
+    - name: Setup Snowflake Credentials
+      uses: ./.github/workflows/setup-snowflake-creds
+      with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          snowflake-secret-id: ${{ env.SNOWFLAKE_SECRET_ID }}
+          key-file-name: ${{ env.LIQUIBASE_SNOWFLAKE_AUTH_PRIVATE_KEY_PATH }}   
+
+    - name: Liquibase Deploy Flow
+      run: liquibase flow --classpath=liquibase-aws-extension.jar --flow-file=liquibase-deploy.flowfile.yaml
+
+    - name: Upload Reports Artifact
+      if: always()
+      uses: ./.github/workflows/upload-reports
+      with:
+        job-type: deploy
+        upload-s3: true
