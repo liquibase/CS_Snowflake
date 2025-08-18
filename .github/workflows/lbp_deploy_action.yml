@@ -48,11 +48,11 @@ env:
   
   # JDBC URL of the database per environment
   # See https://docs.liquibase.com/workflows/liquibase-community/using-jdbc-url-in-liquibase.html
-  LIQUIBASE_COMMAND_URL: ${{ secrets.SNOW_LIQUIBASE_URL }}
+  LIQUIBASE_COMMAND_URL: ${{ secrets.LIQUIBASE_URL }}
 
   # Credentials for the environment's database https://docs.liquibase.com/parameters/command-parameters.html
-  LIQUIBASE_COMMAND_USERNAME: ${{ secrets.SNOW_LIQUIBASE_USERNAME }}
-  LIQUIBASE_COMMAND_PASSWORD: ${{ secrets.SNOW_LIQUIBASE_PASSWORD }}
+  LIQUIBASE_COMMAND_USERNAME: ${{ secrets.LIQUIBASE_USERNAME }}
+  LIQUIBASE_COMMAND_PASSWORD: ${{ secrets.LIQUIBASE_PASSWORD }}
   LIQUIBASE_SNOWFLAKE_AUTH_TYPE: PKI  
   LIQUIBASE_SNOWFLAKE_AUTH_PRIVATE_KEY_PATH: snowflake_key.pem
   SNOWFLAKE_SECRET_ID: asmith_snowflake_pem  
@@ -66,7 +66,7 @@ env:
   # LIQUIBASE_COMMAND_REFERENCE_DEFAULT_SCHEMA_NAME: Sales
 
   # Search path (See https://docs.liquibase.com/concepts/changelogs/how-liquibase-finds-files.html)
-  LIQUIBASE_SEARCH_PATH: flows, checks, changelogs, s3://${{ secrets.AWS_S3_BUCKET }}/snowflake_snapshots/
+  LIQUIBASE_SEARCH_PATH: flows, checks, changelogs
   
   # The database changelog. See https://docs.liquibase.com/concepts/changelogs/working-with-changelogs.html
   LIQUIBASE_COMMAND_CHANGELOG_FILE: changelog.yaml
