@@ -78,6 +78,7 @@ env:
   
   # Prevalidate Settings
   LB_CLONED_URL: "jdbc:snowflake://${{ secrets.SNOWFLAKE_ACCT_NAME }}/?db=${{ secrets.LIQUIBASE_DATABASE_NAME }}&schema=${{ inputs.environment }}"
+  LB_SCHEMANAME: "${{ inputs.environment }}"
   LB_DATABASENAME: "${{ secrets.LIQUIBASE_DATABASE_NAME }}"
   SNOWFLAKE_ACCT_NAME: "${{ secrets.SNOWFLAKE_ACCT_NAME }}"
 
