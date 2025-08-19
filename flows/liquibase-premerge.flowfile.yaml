@@ -39,9 +39,7 @@ stages:
     actions:
       - type: shell
         command: |
-          sqlcmd -b -U "${LIQUIBASE_COMMAND_USERNAME}" -P "${LIQUIBASE_COMMAND_PASSWORD}" -S "tcp:${LB_HOSTNAME},${LB_PORT}" -C -d "master" -Q "DBCC clonedatabase([${LB_DATABASENAME}], [${LB_DATABASENAME}_eph]) with verify_clonedb"
-          sqlcmd -b -U "${LIQUIBASE_COMMAND_USERNAME}" -P "${LIQUIBASE_COMMAND_PASSWORD}" -S "tcp:${LB_HOSTNAME},${LB_PORT}" -C -d "master" -Q "alter database [${LB_DATABASENAME}_eph] set read_write"
-          sqlcmd -b -U "${LIQUIBASE_COMMAND_USERNAME}" -P "${LIQUIBASE_COMMAND_PASSWORD}" -S "tcp:${LB_HOSTNAME},${LB_PORT}" -C -d "master" -Q "INSERT INTO [${LB_DATABASENAME}_eph].${LIQUIBASE_LIQUIBASE_SCHEMA_NAME}.DATABASECHANGELOG SELECT * FROM ${LB_DATABASENAME}.${LIQUIBASE_LIQUIBASE_SCHEMA_NAME}.DATABASECHANGELOG"
+          snowsql -a "${SNOWFLAKE_ACCT_NAME}" --u "${LIQUIBASE_COMMAND_USERNAME}" -p "${LIQUIBASE_COMMAND_PASSWORD}" --dbname "${LIQUIBASE_DATABASE_NAME}" --schemaname $CLONED_SCHEMA -D S_NAME=$CLONED_SCHEMA -f clonecreateschema.sql
 
   # Deploy to ephemeral database
   Tag-and-Deploy-to-EphemeralDB:
@@ -64,11 +62,4 @@ endStage:
    # Drop Ephemeral Database if it exists   
     - type: shell
       command: |
-        DB_EXISTS=$(sqlcmd -b -U "${LIQUIBASE_COMMAND_USERNAME}" -P "${LIQUIBASE_COMMAND_PASSWORD}" -S "tcp:${LB_HOSTNAME},${LB_PORT}" -C -d "master" -h -1 -Q "SELECT CASE WHEN DB_ID('${LB_DATABASENAME}_eph') IS NOT NULL THEN 'EXISTS' ELSE 'NOT_EXISTS' END")
-        echo "Database status: $DB_EXISTS"
-        if [[ "$DB_EXISTS" == *"NOT_EXISTS"* ]]; then
-          echo "Database does not exist - no drop necessary"
-        else
-          echo "Database exists - dropping"
-          sqlcmd -b -U "${LIQUIBASE_COMMAND_USERNAME}" -P "${LIQUIBASE_COMMAND_PASSWORD}" -S "tcp:${LB_HOSTNAME},${LB_PORT}" -C -d "master" -Q "drop database [${LB_DATABASENAME}_eph]"
-        fi
+        snowsql -a $ACCT_NAME --username $CLONED_UID --dbname $CLONED_DB --schemaname $CLONED_SCHEMA -D S_NAME=$CLONED_SCHEMA -f clonedropschema.sql

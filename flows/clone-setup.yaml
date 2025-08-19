@@ -1,9 +1,0 @@
-stages:
-  ## The first stage of actions
-  Default:
-    actions:    
-      #
-      # Create the clone
-      #
-      - type: shell
-        command: snowsql -a $ACCT_NAME --u $CLONED_UID -p $CLONED_PW --dbname $CLONED_DB --schemaname $CLONED_SCHEMA -D S_NAME=$CLONED_SCHEMA -f clonecreateschema.sql
