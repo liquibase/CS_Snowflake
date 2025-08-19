@@ -1,19 +1,19 @@
-# .github/workflows/install-mssql-client-tools/action.yml
-name: 'Install MSSQL Client Tools'
-description: 'Sets up sqlcmd'
+# .github/workflows/install-snowsql/action.yml
+name: 'Install SnowSQL'
+description: 'Sets up snowsql'
 
 runs:
   using: 'composite'
   steps:
-    - name: Install MSSQL Client Tools (sqlcmd)
+    - name: Install SnowSQL
       shell: bash
-      run: |
-        curl https://packages.microsoft.com/config/rhel/8/prod.repo | sudo tee /etc/yum.repos.d/msprod.repo
-        sudo ACCEPT_EULA=Y yum install -y mssql-tools18 unixODBC-devel
-        echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
+      run: |        
+        wget https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.4/linux_x86_64/snowflake-snowsql-1.4.2-1.x86_64.rpm
+        sudo dnf install ./snowflake-snowsql-1.4.2-1.x86_64.rpm
+        echo "/usr/bin/snowsql" >> $GITHUB_PATH
 
-    - name: Check MSSQL client tools (sqlcmd) installation
+    - name: Check SnowSQL installation
       shell: bash
       run: |
-        echo "sqlcmd version:"
-        sqlcmd -?
+        echo "snowsql version:"
+        snowsql -v
