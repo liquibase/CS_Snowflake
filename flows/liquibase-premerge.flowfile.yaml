@@ -40,7 +40,7 @@ stages:
       - type: shell
         command: |
           export SNOWSQL_PWD="${LIQUIBASE_COMMAND_PASSWORD}"
-          snowsql -a "${SNOWFLAKE_ACCT_NAME}" -u "${LIQUIBASE_COMMAND_USERNAME}" --private-key-path "${LIQUIBASE_SNOWFLAKE_AUTH_PRIVATE_KEY_PATH}" --dbname "${LIQUIBASE_DATABASE_NAME}" --schemaname "${LB_SCHEMANAME}" -D S_NAME="${LB_SCHEMANAME}" -f flows/clonecreateschema.sql
+          snowsql -a "${SNOWFLAKE_ACCT_NAME}" -u "${LIQUIBASE_COMMAND_USERNAME}" --private-key-path "${LIQUIBASE_SNOWFLAKE_AUTH_PRIVATE_KEY_PATH}" --dbname "${LB_DATABASENAME}" --schemaname "${LB_SCHEMANAME}" -D S_NAME="${LB_SCHEMANAME}" -f flows/clonecreateschema.sql
 
   # Deploy to ephemeral database
   Tag-and-Deploy-to-EphemeralDB:
