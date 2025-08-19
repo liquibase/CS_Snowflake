@@ -40,7 +40,7 @@ stages:
       - type: shell
         command: |
           export SNOWSQL_PWD="${LIQUIBASE_COMMAND_PASSWORD}"
-          snowsql -a "${SNOWFLAKE_ACCT_NAME}" -u "${LIQUIBASE_COMMAND_USERNAME}" --private-key-path "${LIQUIBASE_SNOWFLAKE_AUTH_PRIVATE_KEY_PATH}" --dbname "${LIQUIBASE_DATABASE_NAME}" --schemaname "${LB_SCHEMANAME}" -D S_NAME="${LB_SCHEMANAME}" -f clonecreateschema.sql
+          snowsql -a "${SNOWFLAKE_ACCT_NAME}" -u "${LIQUIBASE_COMMAND_USERNAME}" --private-key-path "${LIQUIBASE_SNOWFLAKE_AUTH_PRIVATE_KEY_PATH}" --dbname "${LB_DATABASENAME}" --schemaname "${LB_SCHEMANAME}" -D S_NAME="${LB_SCHEMANAME}" -f flows/clonecreateschema.sql
 
   # Deploy to ephemeral database
   Tag-and-Deploy-to-EphemeralDB:
@@ -58,9 +58,10 @@ stages:
         command: history
         cmdArgs: { URL: "${CLONED_URL}" }
         
-#endStage:
-  #actions:
+endStage:
+  actions:
    # Drop Ephemeral Database if it exists   
-    #- type: shell
-      #command: |
-        #snowsql -a $ACCT_NAME --username $CLONED_UID --dbname $CLONED_DB --schemaname $CLONED_SCHEMA -D S_NAME=$CLONED_SCHEMA -f clonedropschema.sql
+    - type: shell
+      command: |
+        export SNOWSQL_PWD="${LIQUIBASE_COMMAND_PASSWORD}"
+        snowsql -a "${SNOWFLAKE_ACCT_NAME}" -u "${LIQUIBASE_COMMAND_USERNAME}" --private-key-path "${LIQUIBASE_SNOWFLAKE_AUTH_PRIVATE_KEY_PATH}" --dbname "${LB_DATABASENAME}" --schemaname "${LB_SCHEMANAME}" -D S_NAME="${LB_SCHEMANAME}" -f flows/clonedropschema.sql
