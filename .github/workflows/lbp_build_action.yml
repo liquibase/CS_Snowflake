@@ -122,4 +122,4 @@ jobs:
       uses: ./.github/workflows/upload-reports
       with:
         job-type: deploy
-        upload-s3: true
+        upload-s3: false
