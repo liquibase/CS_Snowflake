@@ -113,9 +113,8 @@ Reports are uploaded as workflow artifacts and can be accessed from the GitHub A
 ## Configuration
 
 - **liquibase.checks-settings.conf**: Policy checks configuration
-- **liquibase.properties**: Liquibase connection properties (not committed)
 - **.gitignore**: Excludes logs, reports, properties files, and temporary data
 
 ## Support
 
-For Liquibase documentation, visit: http://docs.liquibase.com/flow
+For Liquibase documentation, visit: https://docs.liquibase.com/
