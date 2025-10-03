@@ -72,10 +72,10 @@ env:
 
 jobs:
   #########################################################################
-  #  Rollback
+  #  Snapshot
   #########################################################################
 
-  database-rollback:
+  database-snapshot:
     runs-on: [self-hosted]
     environment: ${{ inputs.environment }}
     steps:
