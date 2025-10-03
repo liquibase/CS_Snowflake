@@ -2,7 +2,7 @@
 #  GitHub Action to perform an environment-targeted snapshot of
 #  a database using Liquibase Secure.
 #####################################################################
-name: 'Liquibase Secure Snapshot'
+name: 'Liquibase Snapshot'
 run-name: ${{ inputs.environment}} snapshot by ${{ github.actor }}
 
 on:

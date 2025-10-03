@@ -1,8 +1,8 @@
 ####################################################################
 #  GitHub Action to perform an environment-targeted rollback of
-#  database changes using Liquibase Pro, Liquibase Pro Flows, and S3.
+#  database changes using Liquibase Secure, Flows, and S3.
 #####################################################################
-name: 'Liquibase Pro Rollback'
+name: 'Liquibase Rollback'
 run-name: ${{ inputs.environment}} rollback by ${{ github.actor }}
 
 on:

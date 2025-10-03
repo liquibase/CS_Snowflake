@@ -1,9 +1,9 @@
 ####################################################################
 #  GitHub Action to perform a build on the first database, eg. DEV,
-#  using Liquibase Pro, Liquibase Pro Flows,
+#  using Liquibase Secure, Flows,
 #  Custom Policy checks and S3.
 #####################################################################
-name: 'Liquibase Pro Build Job'
+name: 'Liquibase Build Job'
 run-name: ${{ inputs.environment}} build of current repo by ${{ github.actor }}
 
 on:
@@ -29,7 +29,7 @@ env:
   # AWS S3 bucket is the host part of the S3 bucket
   AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
   
-  # AWS Access credentials use by the Liquibase Pro S3 Extension
+  # AWS Access credentials use by the Liquibase S3 Extension
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}

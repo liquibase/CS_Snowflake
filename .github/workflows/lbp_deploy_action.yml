@@ -1,9 +1,9 @@
 ####################################################################
 #  GitHub Action to perform an environment-targeted deployment of
-#  database changes using Liquibase Pro, Liquibase Pro Flows,
-#  Custom Quality checks and S3.
+#  database changes using Liquibase Secure, Flows,
+#  Custom Policy checks and S3.
 #####################################################################
-name: 'Liquibase Pro Deployment Job'
+name: 'Liquibase Deployment Job'
 run-name: ${{ inputs.environment}} deployment of current repo by ${{ github.actor }}
 
 on:

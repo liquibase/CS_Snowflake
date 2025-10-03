@@ -1,11 +1,11 @@
 ####################################################################
 #  GitHub Action prior to allowing merge
-#  using Liquibase Pro, Liquibase Pro Flows,
+#  using Liquibase Secure, Flows,
 #  This action spins up a temporary/ephemeral database 
 #  Liquibase changesets and destroys the copy at the end.
 #  Custom Policy checks and S3.
 #####################################################################
-name: 'Liquibase Pro Premerge Job'
+name: 'Liquibase Premerge Job'
 run-name: premerge of current repo by ${{ github.actor }}
 
 on:
