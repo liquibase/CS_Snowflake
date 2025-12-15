@@ -15,13 +15,13 @@ stages:
     actions:
       - type: shell
         if: "${CHECK_DRIFT} == true"
-        command: liquibase --search-path=s3://${BUCKET}/gh_snowflake_snapshots/ diff --reference-url=offline:mssql?snapshot=${ENV}-snapshot.json --report-name="drift-report-${ENV}.html" --reports-enabled=true --drift-severity=1 --schemas=${SCHEMAS} --diff-types=columns,foreignkeys,indexes,primarykeys,tables,uniqueconstraints,views,checkconstraints,triggers
+        command: liquibase --search-path=s3://${BUCKET}/gh_snowflake_snapshots/ diff --reference-url=offline:snowflake?snapshot=${ENV}-snapshot.json --report-name="drift-report-${ENV}.html" --reports-enabled=true --drift-severity=1 --schemas=${SCHEMAS} --diff-types=columns,foreignkeys,indexes,primarykeys,tables,uniqueconstraints,views,checkconstraints,triggers
 
     # actions:
       # - type: liquibase
         # if: "${CHECK_DRIFT} == true"
         # command: diff
-        # cmdArgs: { schemas: "${SCHEMAS}", drift-severity: "1", reference-url: "offline:mssql?snapshot=${ENV}-snapshot.json" }
+        # cmdArgs: { schemas: "${SCHEMAS}", drift-severity: "1", reference-url: "offline:snowflake?snapshot=${ENV}-snapshot.json" }
         # globalArgs: { reports-name: "drift-report-${ENV}.html", search-path: "s3://${BUCKET}/gh_snowflake_snapshots/" }
           
   Validation:
