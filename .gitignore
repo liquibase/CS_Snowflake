@@ -3,3 +3,5 @@ reports/
 liquibase.properties
 .liquibase
 data/
+*.p8
+*.pub

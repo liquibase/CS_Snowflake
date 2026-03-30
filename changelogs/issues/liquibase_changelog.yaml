@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      author: xyz
+      id: create_view-viewtest-view-1
+      changes:
+        - createView:
+            fullDefinition: true
+            remarks: ''
+            viewName: V_VIEWTEST
+            schemaName: INVESTMENTS
+            selectQuery: |
+              CREATE OR REPLACE SECURE VIEW TESTDB.INVESTMENTS.V_VIEWTEST
+              AS
+              SELECT
+                  X.INGEST_VERSION,
+                  X.SYSTEM_START_TIME,
+                  X.SYSTEM_END_TIME,
+                  X.IS_CURRENT,
+                  X.ASSET_ID,
+                  X.POSITION_DATE,
+                  X.PORTFOLIO_NAME,
+                  X.PORTFOLIO_CURRENCY,
+                  X.SECURITY_CURRENCY,
+                  X.SECTOR_PATH,
+                  X.BREAKDOWN_TAG,
+                  X.START_DATE,
+                  X.DISTRIBUTIONS,
+                  X.INCOME,
+                  X.LOCAL_DISTRIBUTIONS,
+                  X.LOCAL_PAID_IN_CAPITAL,
+                  X.LOCAL_RETURN_ON_CAPITAL,
+                  X.LOCAL_UNFUNDED_COMMITMENT,
+                  X.PAID_IN_CAPITAL,
+                  X.RETURN_ON_CAPITAL,
+                  X.UNFUNDED_COMMITMENT,
+                  X.DPI,
+                  X.RVPI,
+                  X.TVPI,
+                  X.GROSS_IRR_PCT,
+                  X.GROSS_LOCAL_IRR_PCT,
+                  X.NET_IRR_PCT,
+                  X.NET_LOCAL_IRR_PCT
+              FROM TESTDB.INVESTMENTS.TESTTABLE X
+              WHERE X.IS_CURRENT = 1;
