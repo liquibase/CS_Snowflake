@@ -1,13 +1,13 @@
 databaseChangeLog:
   - changeSet:
-      author: xyz
-      id: create_view-viewtest-view-1
+      author: asmith
+      id: V_VIEWTEST
       changes:
         - createView:
             fullDefinition: true
             remarks: ''
             viewName: V_VIEWTEST
-            schemaName: INVESTMENTS
+            schemaName: SCHEMA_A
             selectQuery: |
               CREATE OR REPLACE SECURE VIEW TESTDB.INVESTMENTS.V_VIEWTEST
               AS

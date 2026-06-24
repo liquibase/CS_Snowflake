@@ -9,19 +9,35 @@ This project uses Liquibase Secure to track, version, and deploy database change
 ## Project Structure
 
 ```
-├── .github/workflows/     # GitHub Actions workflow definitions
-├── changelogs/           # Database change definitions
-│   ├── changelog.yaml    # Master changelog file
-│   └── issues/          # Change scripts organized by issue
-├── checks/              # Liquibase policy checks configuration
-├── flows/               # Liquibase flow files for different operations
-└── logs/                # Operation logs (ignored in git)
+├── .github/workflows/     		# GitHub Actions workflow definitions
+├── changelogs/           		# Database change definitions
+│   ├── changelog.yaml    		# Master changelog file
+│   └── sequences/          	# Scripts containing sequences
+│   └── tables/          		# Scripts containing tables
+│   └── views/          		# Scripts containing views
+│   └── materializedviews/      # Scripts containing materialized views
+│   └── dynamictables/          # Scripts containing dynamic tables
+│   └── procedures/          	# Scripts containing procedures
+│   └── functions/          	# Scripts containing functions
+│   └── data/          			# Scripts containing data DML
+│   └── issues/          		# Change scripts organized by issue
+├── checks/              		# Liquibase policy checks configuration
+├── flows/               		# Liquibase flow files for different operations
+└── logs/                		# Operation logs (ignored in git)
 ```
 
 ## Key Components
 
 ### Changelogs
 - **changelog.yaml**: Master changelog that includes all database changes
+- **sequences/**: Directory containing SQL change scripts for sequences
+- **tables/**: Directory containing SQL change scripts for tables
+- **views/**: Directory containing SQL change scripts for views
+- **materializedviews/**: Directory containing SQL change scripts for materialized views
+- **dynamictables/**: Directory containing SQL change scripts for dynamic tables
+- **procedures/**: Directory containing SQL change scripts for procedures
+- **functions/**: Directory containing SQL change scripts for functions
+- **data/**: Directory containing SQL change scripts for data DML
 - **issues/**: Directory containing SQL change scripts organized by ticket/issue
 - Changes include initial tagging for rollback functionality
 
